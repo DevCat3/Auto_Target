@@ -141,7 +141,7 @@ Manual start:
 su -c "/data/adb/modules/auto_target/action.sh enable"
 ```
 
-Issue: Permission denied errors
+## Issue: Permission denied errors
 
 Fix:
 
@@ -159,7 +159,7 @@ su -c "ls -l /data/adb/tricky_store/target.txt"
 su -c "cat /data/adb/tricky_store/target.txt"
 ```
 
-Building from Source
+## Building from Source
 
 ```bash
 # Ensure correct structure
@@ -182,7 +182,7 @@ MIT License - free to modify and distribute
 - Shell Compatibility: Magisk/KernelSU/APatch APIs
 - Font: Mona Sans monospace
 
-Support
+## Support
 
 For issues and feature requests, open an issue on GitHub.
 or contact me on telegram @CatDev3
