@@ -1,8 +1,8 @@
-AutoTarget - Magisk Module
+# AutoTarget - Magisk Module
 
 A Magisk module that automatically adds user-installed applications to TrickyStore's `target.txt` with a built-in web UI for management.
 
-Features
+## Features
 
 - Automatic Package Detection: Monitors and automatically adds newly installed user apps to TrickyStore target list
 - Persistent Google Services: Always ensures core Google packages are included
@@ -12,22 +12,22 @@ Features
 - Multi-Root Support: Compatible with Magisk, KernelSU, and APatch
 - Modern Manager Integration: Works with MMRL/Kitsune Mask
 
-Requirements
+## Requirements
 
 - Rooted device with Magisk (21.0+) / KernelSU / APatch
 - TrickyStore module installed
 - Android 8.0+ (API 26+)
 
-Installation
+## Installation
 
-Method 1: Magisk Manager
+### Method 1: Magisk Manager
 
 1. Download `auto_target.zip`
 2. Open Magisk → Modules → Install from storage
 3. Select the ZIP file
 4. Reboot when complete
 
-Method 2: Command Line
+### Method 2: Command Line
 
 ```bash
 adb push auto_target.zip /sdcard/
@@ -35,15 +35,15 @@ adb shell su -c "magisk --install-module /sdcard/auto_target.zip"
 adb reboot
 ```
 
-Method 3: KernelSU/APatch
+### Method 3: KernelSU/APatch
 
 1. Open your root manager app
 2. Navigate to Modules
 3. Tap install and select the ZIP
 
-Usage
+# Usage
 
-Web UI
+## Web UI
 
 Open your root manager's module page and tap "AutoTarget" to launch the web interface.
 
@@ -172,16 +172,17 @@ zip -r9 auto_target.zip . -x "*.git*" "*.DS_Store" "*.zip"
 zip -r9 ../auto_target.zip ../auto_target -x "*.git*" "*.DS_Store" "*.zip"
 ```
 
-License
+# License
 
 MIT License - free to modify and distribute
 
-Credits
+# Credits
 
-- UI Design: OneUI-inspired terminal aesthetic
+- DevCat3
 - Shell Compatibility: Magisk/KernelSU/APatch APIs
 - Font: Mona Sans monospace
 
 Support
 
 For issues and feature requests, open an issue on GitHub.
+or contact me on telegram @CatDev3
