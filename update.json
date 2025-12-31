@@ -1,0 +1,6 @@
+{
+  "version": "v2.0",
+  "versionCode": 2,
+  "zipUrl": "https://github.com/DevCat3/Auto_Target/releases/download/v1.0/auto_target.zip",
+  "changelog": "### What's New:\n- Fixed issue preventing automatic addition of newly installed apps.\n- Fixed logic errors in monitor script (Cache Poisoning fix).\n- Added automatic permission fixing via customize.sh.\n- Improved stability and error logging."
+}

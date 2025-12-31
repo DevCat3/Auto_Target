@@ -1,6 +1,7 @@
 id=auto_target
-name=AutoTarget
-version=1.0
-versionCode=1
+name=Auto Target
+version=v2.0
+versionCode=2
 author=DevCat3
-description=Auto-add user apps to TrickyStore target.txt
+description=Automatically manages TrickyStore target list. Adds user apps and maintains custom packages with real-time monitoring.
+updateJson=https://raw.githubusercontent.com/DevCat3/Auto_Target/main/update.json
