@@ -1,0 +1,6 @@
+id=auto_target
+name=AutoTarget
+version=1.0
+versionCode=1
+author=DevCat3
+description=Auto-add user apps to TrickyStore target.txt
