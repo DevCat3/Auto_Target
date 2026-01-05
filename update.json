@@ -1,6 +1,6 @@
 {
-  "version": "v3.0",
-  "versionCode": 3,
-  "zipUrl": "https://github.com/DevCat3/Auto_Target/releases/download/Main-3/Auto_Target-V3.0.zip",
-  "changelog": "### Fixed Custom Packages service"
+  "version": "v3.1",
+  "versionCode": 4,
+  "zipUrl": "https://github.com/DevCat3/Auto_Target/releases/download/3.1/Auto_Target-V3.1.zip",
+  "changelog": "https://github.com/DevCat3/Auto_Target/blob/main/changelog.md"
 }
