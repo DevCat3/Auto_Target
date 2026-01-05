@@ -1,7 +1,7 @@
 id=auto_target
 name=Auto Target
-version=3.0
-versionCode=3
+version=3.1
+versionCode=4
 author=DevCat3
 description=Automatically manages TrickyStore target list. Adds user apps and maintains custom packages with real-time monitoring.
 updateJson=https://raw.githubusercontent.com/DevCat3/Auto_Target/main/update.json
