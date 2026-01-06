@@ -1,6 +1,6 @@
 {
   "version": "v3.1",
   "versionCode": 4,
-  "zipUrl": "https://github.com/DevCat3/Auto_Target/releases/download/Main-3.1/Auto_Target-V3.1.zip",
+  "zipUrl": "https://github.com/DevCat3/Auto_Target/releases/download/3.1/Auto_Target-V3.1.zip",
   "changelog": "### 🐛 Fixed: App List Persistence Issue\n- **Resolved**: target.txt no longer resets after reboot\n- **Now preserves**: All user apps are maintained across restarts\n- **Improved**: Cache merging system for reliable tracking"
 }
