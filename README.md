@@ -16,7 +16,7 @@ A Magisk module that automatically adds user-installed applications to TrickySto
 
 - Rooted device with Magisk (21.0+) / KernelSU / APatch
 - TrickyStore module installed
-- Android 8.0+ (API 26+)
+- Android 10.0+ (API 26+)
 
 ## Installation
 
