@@ -2,5 +2,5 @@
   "version": "v3.2",
   "versionCode": 5,
   "zipUrl": "https://github.com/DevCat3/Auto_Target/releases/download/3.2/Auto_Target-V3.2.zip",
-  "changelog": "### Auto Boot hash \n improved action button \n added more options to webui"
+  "changelog": "https://raw.githubusercontent.com/DevCat3/Auto_Target/refs/heads/main/changelog.md"
 }
