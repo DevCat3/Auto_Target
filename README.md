@@ -174,7 +174,7 @@ zip -r9 ../auto_target.zip ../auto_target -x "*.git*" "*.DS_Store" "*.zip"
 
 # License
 
-MIT License - free to modify and distribute
+GPL 3.0
 
 # Credits
 
