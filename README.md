@@ -181,6 +181,7 @@ GPL 3.0
 - DevCat3
 - Shell Compatibility: Magisk/KernelSU/APatch APIs
 - Font: Mona Sans monospace
+- Yurii0307: for clear all detections file
 
 ## Support
 
