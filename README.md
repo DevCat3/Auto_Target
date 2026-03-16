@@ -174,14 +174,13 @@ zip -r9 ../auto_target.zip ../auto_target -x "*.git*" "*.DS_Store" "*.zip"
 
 # License
 
-GPL 3.0
+MIT License - free to modify and distribute
 
 # Credits
 
 - DevCat3
 - Shell Compatibility: Magisk/KernelSU/APatch APIs
 - Font: Mona Sans monospace
-- Yurii0307: for clear all detections file
 
 ## Support
 

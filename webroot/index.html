@@ -1,74 +1,141 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>AutoTarget</title>
-<link rel="stylesheet" href="styles.css" />
-<script type="module" src="scripts.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AutoTarget</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script type="module" src="scripts.js"></script>
 </head>
 <body>
 <div id="toast" class="toast"></div>
+
+<!-- Settings Overlay -->
+<div id="settings-overlay" class="settings-overlay"></div>
+
+<!-- Settings Panel -->
+<div id="settings-panel" class="settings-panel">
+  <div class="settings-header">
+    <h2>⚙ Settings</h2>
+    <button id="settings-close" class="settings-close" title="Close">✕</button>
+  </div>
+
+  <div class="settings-row">
+    <div>
+      <label>Dark Mode</label><br>
+      <span>Switch between light and dark</span>
+    </div>
+    <label class="theme-switch">
+      <input type="checkbox" id="theme-toggle" />
+      <span class="slider"></span>
+    </label>
+  </div>
+
+  <div class="settings-row">
+    <div>
+      <label>Quick Action</label><br>
+      <span>Show Run All button</span>
+    </div>
+    <label class="theme-switch">
+      <input type="checkbox" id="action-toggle" />
+      <span class="slider"></span>
+    </label>
+  </div>
+</div>
+
 <main class="container">
-<div class="title-bar">
-<h1 id="module-name" class="title">AutoTarget</h1>
-<label class="theme-switch" title="Toggle light/dark mode">
-<input type="checkbox" id="theme-toggle" />
-<span class="slider"></span>
-</label>
-</div>
-<p class="subtitle">Auto-add apps to TrickyStore target.txt</p>
 
-<div class="card">
-<div class="section-title">Main Controls</div>
-<div class="button-row">
-<button id="update-btn" class="btn primary">Update Now</button>
-<button id="clear-btn" class="btn danger">Clear List</button>
-<button id="view-btn" class="btn success">View List</button>
-</div>
-</div>
+  <!-- Top Bar -->
+  <div class="top-bar">
+    <button id="settings-btn" class="settings-btn" title="Settings">⚙</button>
+  </div>
 
-<div class="card">
-<div class="section-title">Auto Monitor</div>
-<div class="button-row">
-<button id="start-monitor-btn" class="btn primary">Start Monitor</button>
-<button id="stop-monitor-btn" class="btn danger">Stop Monitor</button>
-</div>
-</div>
+  <!-- Header -->
+  <div class="title-bar">
+    <h1 id="module-name" class="title">AutoTarget</h1>
+  </div>
+  <p class="subtitle">Auto-add apps to TrickyStore target.txt</p>
 
-<div class="card">
-<div class="section-title">Custom Packages</div>
-<div class="input-group">
-<input type="text" id="custom-package-input" class="input-field" placeholder="com.example.app" />
-</div>
-<div class="button-row">
-<button id="add-custom-btn" class="btn success">Add Custom</button>
-<button id="remove-custom-btn" class="btn danger">Remove Custom</button>
-<button id="view-custom-btn" class="btn primary">View Custom</button>
-</div>
-</div>
+  <!-- Main Controls -->
+  <div class="card">
+    <div class="section-title">Main Controls</div>
+    <div class="button-row">
+      <button id="update-btn" class="btn primary">Update Now</button>
+      <button id="clear-btn"  class="btn danger">Clear List</button>
+      <button id="view-btn"   class="btn success">View List</button>
+    </div>
+  </div>
 
-<div class="card">
-<div class="section-title">🔒 Security Tools</div>
-<div class="button-row">
-<button id="security-patch-btn" class="btn primary">Security Patch</button>
-<button id="boot-hash-btn" class="btn success">Boot Hash</button>
-<button id="clear-traces-btn" class="btn danger">Clear Traces</button>
-</div>
-</div>
+  <!-- Auto Monitor -->
+  <div class="card">
+    <div class="section-title">Auto Monitor</div>
+    <div class="button-row">
+      <button id="start-monitor-btn" class="btn primary">Start Monitor</button>
+      <button id="stop-monitor-btn"  class="btn danger">Stop Monitor</button>
+    </div>
+  </div>
 
-<div class="card terminal">
-<div class="terminal-header">
-<div class="dots">
-<span class="dot red"></span>
-<span class="dot yellow"></span>
-<span class="dot green"></span>
-</div>
-<span class="term-title">Terminal Output</span>
-<button id="clear-output" class="clear-btn">Clear</button>
-</div>
-<div class="terminal-body" id="output-log"></div>
-</div>
+  <!-- Custom Packages -->
+  <div class="card">
+    <div class="section-title">Custom Packages</div>
+    <div class="input-group">
+      <input type="text" id="custom-package-input" class="input-field"
+             placeholder="com.example.app" />
+    </div>
+    <div class="button-row">
+      <button id="add-custom-btn"    class="btn success">Add</button>
+      <button id="remove-custom-btn" class="btn danger">Remove</button>
+      <button id="view-custom-btn"   class="btn primary">View Custom</button>
+    </div>
+  </div>
+
+  <!-- Security Tools -->
+  <div class="card">
+    <div class="section-title">🔒 Security Tools</div>
+    <div class="button-row">
+      <button id="security-patch-btn" class="btn primary">Security Patch</button>
+      <button id="boot-hash-btn"      class="btn success">Boot Hash</button>
+      <button id="clear-traces-btn"   class="btn danger">Clear Traces</button>
+      <button id="fix-tee-btn"        class="btn fourth">Fix TEE</button>
+    </div>
+  </div>
+
+  <!-- Reset Props -->
+  <div class="card">
+    <div class="section-title">🧹 Reset Props</div>
+    <div class="input-group">
+      <input type="text" id="props-filter-input" class="input-field"
+             placeholder="e.g. pihook|pixelprops" />
+    </div>
+    <div class="button-row">
+      <button id="view-props-btn"  class="btn primary">View Props</button>
+      <button id="reset-props-btn" class="btn danger">Reset Props</button>
+    </div>
+  </div>
+
+  <!-- Quick Action (hidden until enabled in Settings) -->
+  <div class="card action-card" id="action-card" style="display:none">
+    <div class="section-title">⚡ Quick Action</div>
+    <p class="action-desc">Runs all root-hiding scripts + resets pixel props</p>
+    <div class="button-row">
+      <button id="action-btn" class="btn action-btn-el">Run All</button>
+    </div>
+  </div>
+
+  <!-- Terminal -->
+  <div class="card terminal">
+    <div class="terminal-header">
+      <div class="dots">
+        <span class="dot red"></span>
+        <span class="dot yellow"></span>
+        <span class="dot green"></span>
+      </div>
+      <span class="term-title">Terminal Output</span>
+      <button id="clear-output" class="clear-btn">Clear</button>
+    </div>
+    <div class="terminal-body" id="output-log"></div>
+  </div>
+
 </main>
 </body>
 </html>
