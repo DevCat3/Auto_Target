@@ -1,0 +1,516 @@
+// ─── Paths ────────────────────────────────────────────────────────────────────
+const MODDIR         = "/data/adb/modules/auto_target";
+const PROP           = `${MODDIR}/module.prop`;
+
+const UPDATE         = `${MODDIR}/scripts/update_target.sh`;
+const CLEAR          = `${MODDIR}/scripts/clear_target.sh`;
+const VIEW           = `${MODDIR}/scripts/view_target.sh`;
+const START_MONITOR  = `${MODDIR}/action.sh`;
+const STOP_MONITOR   = `${MODDIR}/action.sh`;
+const ADD_CUSTOM     = `${MODDIR}/scripts/add_custom.sh`;
+const REMOVE_CUSTOM  = `${MODDIR}/scripts/remove_custom.sh`;
+const LIST_CUSTOM    = `${MODDIR}/scripts/list_custom.sh`;
+const SECURITY_PATCH = `${MODDIR}/scripts/auto_security_patch.sh`;
+const CLEAR_TRACES   = `${MODDIR}/scripts/clear_all_detection_traces.sh`;
+const BOOT_HASH      = `${MODDIR}/scripts/auto_boot_hash.sh`;
+const TEE            = `${MODDIR}/scripts/auto_fix_broken_tee.sh`;
+const VIEW_PROPS     = `${MODDIR}/scripts/view_props.sh`;
+const RESET_PROPS    = `${MODDIR}/scripts/reset_props.sh`;
+const RUN_ALL        = `${MODDIR}/scripts/run_all.sh`;
+const GET_APPLIST    = `${MODDIR}/scripts/get_applist.sh`;
+const TOGGLE_BLOCKED = `${MODDIR}/scripts/toggle_blocked.sh`;
+const SET_INTERVAL   = `${MODDIR}/scripts/set_monitor_interval.sh`;
+const CONFIG_INTERVAL= `${MODDIR}/config/monitor_interval`;
+
+// ─── State ────────────────────────────────────────────────────────────────────
+let lineCount  = 0;
+let allApps    = [];   // [{p, b}]
+let activeFilter = "all";
+
+// ─── Shell Helpers ────────────────────────────────────────────────────────────
+function isMMRL() {
+  return navigator.userAgent.includes("com.dergoogler.mmrl");
+}
+
+function runShell(cmd) {
+  return new Promise((resolve, reject) => {
+    if (typeof ksu === "object" && typeof ksu.exec === "function") {
+      const cbName = `cb_${Date.now()}`;
+      window[cbName] = (code, stdout, stderr) => {
+        delete window[cbName];
+        code === 0 ? resolve(stdout) : reject(stderr || "Shell error");
+      };
+      ksu.exec(cmd, "{}", cbName);
+      return;
+    }
+    if (isMMRL() && typeof window.execShell === "function") {
+      window.execShell(cmd).then(resolve).catch(e => reject(e || "Shell error"));
+      return;
+    }
+    reject("No supported shell API found");
+  });
+}
+
+// ─── UI Helpers ───────────────────────────────────────────────────────────────
+function popup(msg) {
+  const toast = document.getElementById("toast");
+  toast.textContent = msg;
+  toast.classList.add("show");
+  setTimeout(() => toast.classList.remove("show"), 3000);
+}
+
+function logOutput(text) {
+  const log = document.getElementById("output-log");
+  for (const line of text.trim().split("\n")) {
+    lineCount++;
+    const pre = document.createElement("pre");
+    pre.textContent = `${lineCount.toString().padStart(3, " ")} | ${line}`;
+    log.appendChild(pre);
+    log.scrollTop = log.scrollHeight;
+  }
+}
+
+function clearOutput() {
+  lineCount = 0;
+  document.getElementById("output-log").innerHTML = "";
+}
+
+// ─── Module Name ──────────────────────────────────────────────────────────────
+async function getModuleName() {
+  try {
+    const name = await runShell(`grep '^name=' ${PROP} | cut -d= -f2`);
+    document.getElementById("module-name").textContent = name.trim();
+    document.title = name.trim();
+  } catch {
+    document.getElementById("module-name").textContent = "AutoTarget";
+  }
+}
+
+// ─── Script Runners ───────────────────────────────────────────────────────────
+async function executeScript(scriptPath, label) {
+  popup(label);
+  clearOutput();
+  logOutput(`[*] ${label}...`);
+  try {
+    const out = await runShell(`sh ${scriptPath}`);
+    logOutput(out || "[+] Done");
+  } catch (e) {
+    logOutput(`[!] Error: ${e}`);
+  }
+}
+
+async function executeScriptWithArg(scriptPath, arg, label) {
+  popup(label);
+  clearOutput();
+  logOutput(`[*] ${label}...`);
+  try {
+    const out = await runShell(`sh ${scriptPath} ${arg}`);
+    logOutput(out || "[+] Done");
+  } catch (e) {
+    logOutput(`[!] Error: ${e}`);
+  }
+}
+
+// ─── List Viewers ─────────────────────────────────────────────────────────────
+async function viewList() {
+  popup("Loading list...");
+  clearOutput();
+  try {
+    const out = await runShell(`sh ${VIEW}`);
+    out.trim() ? logOutput(out) : logOutput("[*] List is empty");
+  } catch (e) {
+    logOutput(`[!] Error: ${e}`);
+  }
+}
+
+async function viewCustomList() {
+  popup("Loading custom list...");
+  clearOutput();
+  try {
+    const out = await runShell(`sh ${LIST_CUSTOM}`);
+    logOutput(out);
+  } catch (e) {
+    logOutput(`[!] Error: ${e}`);
+  }
+}
+
+function getCustomPackage() {
+  return document.getElementById("custom-package-input").value.trim();
+}
+
+// ─── Props ────────────────────────────────────────────────────────────────────
+function getPropsFilter() {
+  return document.getElementById("props-filter-input").value.trim();
+}
+
+async function viewProps() {
+  const filter = getPropsFilter();
+  if (!filter) { popup("Enter a filter pattern first"); return; }
+  popup("Fetching props...");
+  clearOutput();
+  logOutput(`[*] Looking for props matching: ${filter}`);
+  try {
+    const out = await runShell(`sh ${VIEW_PROPS} "${filter}"`);
+    logOutput(out || "[*] No matching props found");
+  } catch (e) {
+    logOutput(`[!] Error: ${e}`);
+  }
+}
+
+async function resetProps() {
+  const filter = getPropsFilter();
+  if (!filter) { popup("Enter a filter pattern first"); return; }
+  popup("Resetting props...");
+  clearOutput();
+  logOutput(`[*] Resetting props matching: ${filter}`);
+  try {
+    const out = await runShell(`sh ${RESET_PROPS} "${filter}"`);
+    logOutput(out || "[+] Done");
+  } catch (e) {
+    logOutput(`[!] Error: ${e}`);
+  }
+}
+
+// ─── Quick Action ─────────────────────────────────────────────────────────────
+async function runAllAction() {
+  const btn = document.getElementById("action-btn");
+  btn.disabled = true;
+  btn.textContent = "Running...";
+  popup("Running all root-hide scripts...");
+  clearOutput();
+  try {
+    const out = await runShell(`sh ${RUN_ALL}`);
+    logOutput(out || "[✓] Done");
+  } catch (e) {
+    logOutput(`[!] Error: ${e}`);
+  }
+  popup("Done!");
+  btn.disabled = false;
+  btn.textContent = "Run All";
+}
+
+// ─── Tab System ───────────────────────────────────────────────────────────────
+function initTabs() {
+  const btns = document.querySelectorAll(".tab-btn");
+  btns.forEach(btn => {
+    btn.addEventListener("click", () => {
+      const target = btn.dataset.tab;
+      btns.forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      document.querySelectorAll(".tab-content").forEach(c => c.classList.remove("active"));
+      document.getElementById(`tab-${target}`).classList.add("active");
+      // Load apps only on first visit — refresh is manual after that
+      if (target === "apps" && allApps.length === 0) loadAppList();
+    });
+  });
+}
+
+// ─── App Manager ─────────────────────────────────────────────────────────────
+async function loadAppList() {
+  const loading = document.getElementById("apps-loading");
+  const list    = document.getElementById("apps-list");
+  const empty   = document.getElementById("apps-empty");
+
+  // Use in-memory cache if already loaded this session
+  if (allApps.length > 0) {
+    renderApps();
+    return;
+  }
+
+  // Try sessionStorage cache (survives panel close/reopen within same WebView session)
+  try {
+    const cached = sessionStorage.getItem("at_applist");
+    if (cached) {
+      allApps = JSON.parse(cached);
+      renderApps();
+      return;
+    }
+  } catch { /* ignore */ }
+
+  loading.style.display = "flex";
+  loading.innerHTML = `<div class="spinner"></div><span>Loading...</span>`;
+  list.style.display  = "none";
+  empty.style.display = "none";
+
+  try {
+    const raw = await runShell(`sh ${GET_APPLIST}`);
+    allApps = [];
+    for (const line of raw.trim().split("\n")) {
+      if (!line.trim()) continue;
+      try { allApps.push(JSON.parse(line)); } catch { /* skip */ }
+    }
+    // Save to sessionStorage for re-use
+    try { sessionStorage.setItem("at_applist", JSON.stringify(allApps)); } catch { /* ignore */ }
+    renderApps();
+  } catch (e) {
+    loading.style.display = "none";
+    empty.textContent     = `[!] Failed to load: ${e}`;
+    empty.style.display   = "block";
+  }
+}
+
+function renderApps() {
+  const loading = document.getElementById("apps-loading");
+  const listEl  = document.getElementById("apps-list");
+  const empty   = document.getElementById("apps-empty");
+  const search  = document.getElementById("app-search").value.toLowerCase();
+
+  const filtered = allApps.filter(app => {
+    const matchSearch = !search ||
+      app.p.toLowerCase().includes(search) ||
+      (app.n && app.n.toLowerCase().includes(search));
+    const matchFilter =
+      activeFilter === "all" ? true :
+      activeFilter === "on"  ? !app.b :
+      activeFilter === "off" ?  app.b : true;
+    return matchSearch && matchFilter;
+  });
+
+  loading.style.display = "none";
+
+  if (filtered.length === 0) {
+    listEl.style.display  = "none";
+    empty.style.display   = "block";
+    empty.textContent     = allApps.length === 0 ? "No apps found" : "No apps match your search";
+    return;
+  }
+
+  empty.style.display  = "none";
+  listEl.style.display = "flex";
+  listEl.innerHTML     = "";
+
+  const frag = document.createDocumentFragment();
+
+  for (const app of filtered) {
+    const item = document.createElement("div");
+    item.className = `app-item${app.b ? " blocked" : ""}`;
+    item.dataset.pkg = app.p;
+
+    const displayName = (app.n && app.n !== app.p) ? app.n : "";
+
+    item.innerHTML = `
+      <div class="app-info">
+        ${displayName ? `<div class="app-name">${displayName}</div>` : ""}
+        <div class="app-pkg${displayName ? " app-pkg-small" : ""}">${app.p}</div>
+        <span class="app-badge ${app.b ? "off" : "on"}">${app.b ? "Blocked" : "Targeted"}</span>
+      </div>
+      <div class="app-checkbox-wrap"></div>`;
+
+    item.addEventListener("click", () => toggleAppBlocked(app));
+    frag.appendChild(item);
+  }
+
+  listEl.appendChild(frag);
+}
+
+async function toggleAppBlocked(app) {
+  const newBlocked = app.b ? 0 : 1;
+  const action     = newBlocked === 1 ? "Blocking" : "Unblocking";
+  popup(`${action} ${app.p}...`);
+
+  // Optimistic UI update
+  app.b = newBlocked;
+  renderApps();
+
+  try {
+    await runShell(`sh ${TOGGLE_BLOCKED} "${app.p}" ${newBlocked}`);
+    popup(newBlocked ? "Blocked ✓" : "Unblocked ✓");
+  } catch (e) {
+    // Revert on error
+    app.b = newBlocked ? 0 : 1;
+    renderApps();
+    popup(`Error: ${e}`);
+  }
+
+  // Update sessionStorage to reflect new state
+  try { sessionStorage.setItem("at_applist", JSON.stringify(allApps)); } catch { /* ignore */ }
+}
+
+// ─── Settings Panel ───────────────────────────────────────────────────────────
+function initSettings() {
+  const btn     = document.getElementById("settings-btn");
+  const panel   = document.getElementById("settings-panel");
+  const overlay = document.getElementById("settings-overlay");
+  const close   = document.getElementById("settings-close");
+
+  const open  = () => { panel.classList.add("open"); overlay.classList.add("open"); btn.classList.add("open"); };
+  const close_ = () => { panel.classList.remove("open"); overlay.classList.remove("open"); btn.classList.remove("open"); };
+
+  btn.addEventListener("click", () => panel.classList.contains("open") ? close_() : open());
+  close.addEventListener("click", close_);
+  overlay.addEventListener("click", close_);
+}
+
+// ─── Monitor Interval ─────────────────────────────────────────────────────────
+async function initIntervalSetting() {
+  const input = document.getElementById("interval-input");
+  const save  = document.getElementById("interval-save-btn");
+
+  // Load current value
+  try {
+    const val = await runShell(`cat ${CONFIG_INTERVAL} 2>/dev/null || echo 60`);
+    input.value = val.trim();
+  } catch {
+    input.value = 60;
+  }
+
+  save.addEventListener("click", async () => {
+    const val = parseInt(input.value, 10);
+    if (!val || val < 10) { popup("Min 10 seconds"); return; }
+    save.disabled = true;
+    save.textContent = "...";
+    try {
+      await runShell(`sh ${SET_INTERVAL} ${val}`);
+      popup(`Interval set to ${val}s`);
+    } catch (e) {
+      popup(`Error: ${e}`);
+    }
+    save.disabled = false;
+    save.textContent = "Save";
+  });
+}
+
+// ─── Toggles (visibility) ─────────────────────────────────────────────────────
+function makeToggle(toggleId, targetId, storageKey, byId = true) {
+  const toggle = document.getElementById(toggleId);
+  const el     = byId ? document.getElementById(targetId) : document.querySelector(targetId);
+  const saved  = localStorage.getItem(storageKey);
+
+  if (saved === "1") { el.style.display = ""; toggle.checked = true; }
+
+  toggle.addEventListener("change", () => {
+    el.style.display = toggle.checked ? "" : "none";
+    localStorage.setItem(storageKey, toggle.checked ? "1" : "0");
+  });
+}
+
+// ─── Apps Tab Toggle ──────────────────────────────────────────────────────────
+function initAppsToggle() {
+  const toggle = document.getElementById("apps-toggle");
+  const tabBtn = document.getElementById("apps-tab-btn");
+  const saved  = localStorage.getItem("showApps");
+
+  if (saved === "1") {
+    tabBtn.style.display = "";
+    toggle.checked = true;
+  }
+
+  toggle.addEventListener("change", () => {
+    if (toggle.checked) {
+      tabBtn.style.display = "";
+      localStorage.setItem("showApps", "1");
+    } else {
+      // If currently on apps tab, switch back to main first
+      if (tabBtn.classList.contains("active")) {
+        document.querySelector(".tab-btn[data-tab='main']").click();
+      }
+      tabBtn.style.display = "none";
+      localStorage.setItem("showApps", "0");
+    }
+  });
+}
+
+
+function initFilterBtns() {
+  document.querySelectorAll(".filter-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      activeFilter = btn.dataset.filter;
+      renderApps();
+    });
+  });
+}
+
+// ─── Repaint ──────────────────────────────────────────────────────────────────
+function forceRepaint() {
+  document.body.style.display = "none";
+  void document.body.offsetHeight;
+  document.body.style.display = "";
+}
+
+function initTheme() {
+  const toggle = document.getElementById("theme-toggle");
+  const saved  = localStorage.getItem("theme");
+
+  if (saved === "dark") { document.documentElement.classList.add("dark"); toggle.checked = true; }
+  else { document.documentElement.classList.remove("dark"); toggle.checked = false; }
+
+  toggle.addEventListener("change", () => {
+    document.documentElement.classList.toggle("dark", toggle.checked);
+    localStorage.setItem("theme", toggle.checked ? "dark" : "light");
+    forceRepaint();
+  });
+}
+
+// ─── Init ─────────────────────────────────────────────────────────────────────
+document.addEventListener("DOMContentLoaded", () => {
+  getModuleName();
+  initTheme();
+  initSettings();
+  initTabs();
+  initFilterBtns();
+  initIntervalSetting();
+
+  // Visibility toggles
+  makeToggle("action-toggle", "action-card",   "showAction");
+  makeToggle("props-toggle",  "props-card",    "showProps");
+  makeToggle("tee-toggle",    "tee-btn-wrap",  "showTee");
+  initAppsToggle();
+
+  // App list refresh button
+  document.getElementById("apps-refresh-btn").addEventListener("click", () => {
+    allApps = [];
+    try { sessionStorage.removeItem("at_applist"); } catch { /* ignore */ }
+    loadAppList();
+  });
+
+  // Main Controls
+  document.getElementById("update-btn")
+    .addEventListener("click", () => executeScript(UPDATE, "Updating target list"));
+  document.getElementById("clear-btn")
+    .addEventListener("click", () => executeScript(CLEAR, "Clearing target list"));
+  document.getElementById("view-btn")
+    .addEventListener("click", viewList);
+
+  // Monitor
+  document.getElementById("start-monitor-btn")
+    .addEventListener("click", () => executeScript(`${START_MONITOR} enable`, "Starting monitor"));
+  document.getElementById("stop-monitor-btn")
+    .addEventListener("click", () => executeScript(`${STOP_MONITOR} disable`, "Stopping monitor"));
+
+  // Custom Packages
+  document.getElementById("add-custom-btn").addEventListener("click", () => {
+    const pkg = getCustomPackage();
+    pkg ? executeScriptWithArg(ADD_CUSTOM, pkg, "Adding custom package") : popup("Enter a package name");
+  });
+  document.getElementById("remove-custom-btn").addEventListener("click", () => {
+    const pkg = getCustomPackage();
+    pkg ? executeScriptWithArg(REMOVE_CUSTOM, pkg, "Removing custom package") : popup("Enter a package name");
+  });
+  document.getElementById("view-custom-btn").addEventListener("click", viewCustomList);
+
+  // Security Tools
+  document.getElementById("security-patch-btn")
+    .addEventListener("click", () => executeScript(SECURITY_PATCH, "Running security patch"));
+  document.getElementById("boot-hash-btn")
+    .addEventListener("click", () => executeScript(BOOT_HASH, "Running boot hash"));
+  document.getElementById("clear-traces-btn")
+    .addEventListener("click", () => executeScript(CLEAR_TRACES, "Clearing detection traces"));
+  document.getElementById("fix-tee-btn")
+    .addEventListener("click", () => executeScript(TEE, "Fixing TEE"));
+
+  // Quick Action
+  document.getElementById("action-btn").addEventListener("click", runAllAction);
+
+  // Reset Props
+  document.getElementById("view-props-btn").addEventListener("click", viewProps);
+  document.getElementById("reset-props-btn").addEventListener("click", resetProps);
+
+  // Terminal
+  document.getElementById("clear-output").addEventListener("click", clearOutput);
+
+  // App search
+  document.getElementById("app-search")
+    .addEventListener("input", () => renderApps());
+});

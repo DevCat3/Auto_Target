@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AutoTarget</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script type="module" src="scripts.js"></script>
+</head>
+<body>
+<div id="toast" class="toast"></div>
+
+<!-- Settings Overlay -->
+<div id="settings-overlay" class="settings-overlay"></div>
+
+<!-- Settings Panel -->
+<div id="settings-panel" class="settings-panel">
+  <div class="settings-header">
+    <h2>⚙ Settings</h2>
+    <button id="settings-close" class="settings-close">✕</button>
+  </div>
+
+  <div class="settings-row">
+    <div><label>Dark Mode</label><br><span>Light / dark theme</span></div>
+    <label class="theme-switch">
+      <input type="checkbox" id="theme-toggle" /><span class="slider"></span>
+    </label>
+  </div>
+
+  <div class="settings-divider"></div>
+
+  <div class="settings-section-label">Visibility</div>
+
+  <div class="settings-row">
+    <div><label>Quick Action</label><br><span>Show Run All button</span></div>
+    <label class="theme-switch">
+      <input type="checkbox" id="action-toggle" /><span class="slider"></span>
+    </label>
+  </div>
+
+  <div class="settings-row">
+    <div><label>Reset Props</label><br><span>Show props section</span></div>
+    <label class="theme-switch">
+      <input type="checkbox" id="props-toggle" /><span class="slider"></span>
+    </label>
+  </div>
+
+  <div class="settings-row">
+    <div><label>Fix TEE</label><br><span>Show Fix TEE button</span></div>
+    <label class="theme-switch">
+      <input type="checkbox" id="tee-toggle" /><span class="slider"></span>
+    </label>
+  </div>
+
+  <div class="settings-row">
+    <div><label>Apps Tab</label><br><span>Show app manager tab</span></div>
+    <label class="theme-switch">
+      <input type="checkbox" id="apps-toggle" /><span class="slider"></span>
+    </label>
+  </div>
+
+  <div class="settings-divider"></div>
+
+  <div class="settings-section-label">Monitor</div>
+
+  <div class="settings-block">
+    <label class="settings-label">Refresh Interval</label>
+    <span class="settings-hint">How often monitor checks for new apps (10–3600s)</span>
+    <div class="settings-interval-row">
+      <input type="number" id="interval-input" class="input-field interval-input"
+             min="10" max="3600" placeholder="60" />
+      <button id="interval-save-btn" class="btn primary interval-btn">Save</button>
+    </div>
+  </div>
+</div>
+
+<main class="container">
+
+  <!-- Top Bar -->
+  <div class="top-bar">
+    <button id="settings-btn" class="settings-btn" title="Settings">⚙</button>
+  </div>
+
+  <!-- Header -->
+  <div class="title-bar">
+    <h1 id="module-name" class="title">AutoTarget</h1>
+  </div>
+  <p class="subtitle">Auto-add apps to TrickyStore target.txt</p>
+
+  <!-- Tab Bar -->
+  <div class="tab-bar">
+    <button class="tab-btn active" data-tab="main">Main</button>
+    <button class="tab-btn" data-tab="apps" id="apps-tab-btn" style="display:none">Apps</button>
+  </div>
+
+  <!-- ══ TAB: MAIN ══════════════════════════════════════ -->
+  <div id="tab-main" class="tab-content active">
+
+    <div class="card">
+      <div class="section-title">Main Controls</div>
+      <div class="button-row">
+        <button id="update-btn" class="btn primary">Update Now</button>
+        <button id="clear-btn"  class="btn danger">Clear List</button>
+        <button id="view-btn"   class="btn success">View List</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-title">Auto Monitor</div>
+      <div class="button-row">
+        <button id="start-monitor-btn" class="btn primary">Start Monitor</button>
+        <button id="stop-monitor-btn"  class="btn danger">Stop Monitor</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-title">Custom Packages</div>
+      <div class="input-group">
+        <input type="text" id="custom-package-input" class="input-field" placeholder="com.example.app" />
+      </div>
+      <div class="button-row">
+        <button id="add-custom-btn"    class="btn success">Add</button>
+        <button id="remove-custom-btn" class="btn danger">Remove</button>
+        <button id="view-custom-btn"   class="btn primary">View Custom</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-title">Security Tools</div>
+      <div class="button-row">
+        <button id="security-patch-btn" class="btn primary">Security Patch</button>
+        <button id="boot-hash-btn"      class="btn success">Boot Hash</button>
+        <button id="clear-traces-btn"   class="btn danger">Clear Traces</button>
+        <span id="tee-btn-wrap" style="display:none">
+          <button id="fix-tee-btn" class="btn fourth">Fix TEE</button>
+        </span>
+      </div>
+    </div>
+
+    <div class="card" id="props-card" style="display:none">
+      <div class="section-title">Reset Props</div>
+      <div class="input-group">
+        <input type="text" id="props-filter-input" class="input-field" placeholder="e.g. pihook|pixelprops" />
+      </div>
+      <div class="button-row">
+        <button id="view-props-btn"  class="btn primary">View Props</button>
+        <button id="reset-props-btn" class="btn danger">Reset Props</button>
+      </div>
+    </div>
+
+    <div class="card action-card" id="action-card" style="display:none">
+      <div class="section-title">Quick Action</div>
+      <p class="action-desc">Runs all root-hiding scripts + resets pixel props</p>
+      <div class="button-row">
+        <button id="action-btn" class="btn action-btn-el">Run All</button>
+      </div>
+    </div>
+
+    <div class="card terminal">
+      <div class="terminal-header">
+        <div class="dots">
+          <span class="dot red"></span>
+          <span class="dot yellow"></span>
+          <span class="dot green"></span>
+        </div>
+        <span class="term-title">Terminal Output</span>
+        <button id="clear-output" class="clear-btn">Clear</button>
+      </div>
+      <div class="terminal-body" id="output-log"></div>
+    </div>
+
+  </div><!-- /tab-main -->
+
+  <!-- ══ TAB: APPS ═══════════════════════════════════════ -->
+  <div id="tab-apps" class="tab-content">
+
+    <div class="card">
+      <div class="section-title">App Manager</div>
+      <p class="action-desc">
+        Uncheck apps to block them from target.txt — the monitor won't re-add them.
+      </p>
+      <div class="apps-toolbar">
+        <input type="text" id="app-search" class="input-field" placeholder="Search package..." />
+        <div class="apps-toolbar-row">
+          <div class="filter-btns">
+            <button class="filter-btn active" data-filter="all">All</button>
+            <button class="filter-btn" data-filter="on">Targeted</button>
+            <button class="filter-btn" data-filter="off">Blocked</button>
+          </div>
+          <button id="apps-refresh-btn" class="apps-refresh-btn" title="Reload app list">↻</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card apps-card" id="apps-card">
+      <!-- Loading state -->
+      <div id="apps-loading" class="apps-loading">
+        <div class="spinner"></div>
+        <span>Loading app list...</span>
+      </div>
+      <!-- App list -->
+      <div id="apps-list" class="apps-list" style="display:none"></div>
+      <!-- Empty state -->
+      <div id="apps-empty" class="apps-empty" style="display:none">
+        No apps match your search
+      </div>
+    </div>
+
+  </div><!-- /tab-apps -->
+
+</main>
+</body>
+</html>

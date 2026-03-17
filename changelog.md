@@ -1,7 +1,49 @@
 # AutoTarget Changelog
 
-## v3.3 (2026-03-16)
-### 🖥️ WebUI Improvements
+## v3.5 (2026-03-17)
+
+### WebUI
+1. Added Apps tab — browse all installed apps, toggle in/out of target.txt
+2. Apps tab is hidden by default — enable it from Settings
+3. App names fetched via `aapt` and displayed above package name
+4. App list loads instantly from pre-built name cache (no blocking)
+5. App list cached in `sessionStorage` — no reload on tab switch or panel re-open
+6. Added manual refresh button (↻) in Apps tab to force reload
+7. Added Quick Action card — runs all root-hide scripts + resets pixel props
+8. Quick Action visibility controlled from Settings
+9. Added Reset Props section with filter input, View Props and Reset Props buttons
+10. Reset Props visibility controlled from Settings
+11. Added Fix TEE button in Security Tools section
+12. Fix TEE visibility controlled from Settings
+13. Added Settings panel (slide-in from right) with all toggles
+14. Moved Dark Mode toggle inside Settings panel
+15. Added Monitor Interval setting in Settings (10–3600s)
+16. Removed all emojis from the interface
+17. Darkened colors and increased button font weight for better readability
+18. Removed blue focus outline on all interactive elements
+19. Removed tap highlight on buttons and inputs for Android WebView
+20. Added `will-change: transform` on buttons and settings panel for smoother animations
+21. Fixed GPU layer glitch on theme switch — removed `backdrop-filter` from cards
+22. Added `forceRepaint()` on theme change to flush stale GPU layers
+23. Fixed card background from semi-transparent `rgba` to solid color
+
+### Scripts
+1. Added `get_applist.sh` — instant output from `pm list packages` + name cache lookup
+2. Added `build_applist.sh` — runs in background at boot, builds `appnames.cache` via `aapt` incrementally
+3. Added `toggle_blocked.sh` — block/unblock packages, persisted in `cache/blocked_packages.list`
+4. Added `set_monitor_interval.sh` — writes interval to `config/monitor_interval`
+5. Added `run_all.sh` — runs Security Patch, Boot Hash, Clear Traces, Fix TEE, reset pixel props
+6. Added `view_props.sh` / `reset_props.sh` — filter and reset system props by grep pattern
+7. Fixed boot hash — moved from `post-fs-data.sh` to `service.sh` (runs after props are loaded)
+8. Boot hash now reads directly from vbmeta block device for the real unmodified digest
+9. `action.sh` now calls `run_all.sh` for Magisk action button
+10. `update_target.sh` respects `blocked_packages.list` — blocked apps never re-added by monitor
+11. Included `aapt` binaries for arm64 and armeabi architectures
+
+---
+
+## v3.2.1 (2026-03-16)
+### WebUI
 1. Added Fix TEE button wired to `auto_fix_broken_tee.sh`
 2. Added Reset Props section with filter input, View Props and Reset Props buttons
 3. Added Settings panel (slide-in from right) replacing the old theme toggle in the title bar
@@ -18,21 +60,21 @@
 ---
 
 ## v3.2 (2026-02-06)
-### 🔒 Security Tools
-- **Auto Security Patch**: Added automatic security patch date spoofing (backdates by 1 month)
-- **Boot Hash Sync**: Added vbmeta digest synchronization and persistence
-- **Clear Detection Traces**: One-click cleanup for detector apps data, tool apps cache, system properties, and ODEX files
-- **Web UI Integration**: New "🔒 Security Tools" section with 3 dedicated buttons
+### Security Tools
+- Added automatic security patch date spoofing (backdates by 1 month)
+- Added vbmeta digest synchronization and persistence
+- Added one-click cleanup for detector apps data, tool apps cache, system properties, and ODEX files
+- New Security Tools section with 3 dedicated buttons
 
 ---
 
 ## v3.1 (2026-01-06)
-### 🐛 Bug Fixes
-- **Fixed critical data loss issue**: Resolved problem where `target.txt` would reset to only 3 Google apps after device reboot
-- **Persistent app tracking**: Module now correctly preserves all user-installed applications across reboots
-- **Enhanced cache system**: `update_target.sh` now merges existing cache with current apps instead of overwriting
+### Bug Fixes
+- Fixed critical data loss issue where `target.txt` would reset to only 3 Google apps after reboot
+- Module now correctly preserves all user-installed applications across reboots
+- `update_target.sh` now merges existing cache with current apps instead of overwriting
 
-### 🔧 Improvements
+### Improvements
 - Added intelligent cache merging to maintain historical app list
 - Improved boot service reliability with proper delay timing
 - Enhanced logging for better debugging experience

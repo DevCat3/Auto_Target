@@ -1,0 +1,12 @@
+# Build outputs
+*.zip
+
+# OS files
+.DS_Store
+__MACOSX/
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+*.swp
