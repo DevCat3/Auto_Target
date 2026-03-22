@@ -1,5 +1,33 @@
 # AutoTarget Changelog
 
+## v3.6 (2026-03-22)
+
+### WebUI
+1. Added Stats card below title — shows Targeted / Blocked / Installed counts, auto-refreshes after any operation
+2. Added Tools tab with Target.txt Editor, Backup & Restore, Custom Keybox, and Boot Logs sections
+3. Apps tab toggle added to Settings — hidden by default
+4. App list now cached in `localStorage` with 5-minute TTL — survives WebView restarts without reloading
+5. Refresh button in Apps tab changed to a green rectangle labeled "Refresh"
+6. Added Deselect Unnecessary button in Security Tools — removes launchers, keyboards, wallpapers, and other non-Attestation apps from target.txt
+7. Tools tab simplified — each input field has a descriptive placeholder explaining what to enter
+8. Tools tab has its own terminal output separate from the Main tab terminal
+9. Fixed Stats card not updating — `runShell` now accepts `ignoreError` flag so zero-count results don't silently fail
+10. Removed boot hash feature from the interface entirely
+
+### Scripts
+1. Added `get_stats.sh` — returns JSON with targeted/blocked/installed counts using cache for speed, always exits 0
+2. Added `deselect_unnecessary.sh` — removes non-Attestation apps (launchers, keyboards, wallpapers, providers, etc.) from target.txt
+3. Added `target_editor.sh` — reads or writes target.txt via base64 encoding for safe shell transfer
+4. Added `backup_target.sh` — create/list/restore/delete timestamped target.txt snapshots in `backups/`
+5. Added `keybox_manager.sh` — load keybox.xml from URL or file path, with backup and restore support
+6. Added `boot_logger.sh` — saves diagnostic snapshot at every boot (device info, target count, interval, version), keeps last 5 logs
+7. Removed `auto_boot_hash.sh` and all boot hash logic from `service.sh`, `post-fs-data.sh`, and `run_all.sh`
+8. `post-fs-data.sh` is now empty — nothing runs at early boot stage
+9. `run_all.sh` updated to 4 steps: Security Patch → Clear Traces → Fix TEE → Reset pixel props
+10. `service.sh` now calls `boot_logger.sh` at boot when logging is enabled (default: on)
+
+---
+
 ## v3.5 (2026-03-17)
 
 ### WebUI

@@ -1,188 +1,214 @@
-# AutoTarget - Magisk Module
+# Auto Target
 
-A Magisk module that automatically adds user-installed applications to TrickyStore's `target.txt` with a built-in web UI for management.
+Automatically adds installed apps to TrickyStore `target.txt` with a full WebUI for management, root-hide tools, and smart monitoring.
 
-## Features
-
-- Automatic Package Detection: Monitors and automatically adds newly installed user apps to TrickyStore target list
-- Persistent Google Services: Always ensures core Google packages are included
-- Custom Packages: Manually add specific packages that persist across updates
-- Web UI: Terminal-style interface with dark/light mode support
-- Real-time Monitoring: Background service checks for new apps every 60 seconds
-- Multi-Root Support: Compatible with Magisk, KernelSU, and APatch
-- Modern Manager Integration: Works with MMRL/Kitsune Mask
+[![Latest Release](https://img.shields.io/github/v/release/DevCat3/Auto-Target?label=Release&logo=github)](https://github.com/DevCat3/Auto-Target/releases/latest)
 
 ## Requirements
 
-- Rooted device with Magisk (21.0+) / KernelSU / APatch
-- TrickyStore module installed
-- Android 10.0+ (API 28+)
+- [TrickyStore](https://github.com/5ec1cff/TrickyStore) module installed
+- KernelSU / APatch / Magisk (25.2+)
+- Android 10+ (API 29+)
 
 ## Installation
 
-### Method 1: Magisk Manager
+1. Download the latest ZIP from [Releases](https://github.com/DevCat3/Auto-Target/releases/latest)
+2. Open your root manager → Modules → Install from storage
+3. Select the ZIP and reboot
 
-1. Download `auto_target.zip`
-2. Open Magisk → Modules → Install from storage
-3. Select the ZIP file
-4. Reboot when complete
+## Features
 
-### Method 2: Command Line
+| Feature | Status |
+| :--- | :---: |
+| Auto-add all user-installed apps to target.txt on boot | ✅ |
+| Smart monitor — detects installs/uninstalls at configurable interval | ✅ |
+| Block specific apps from ever being added by the monitor | ✅ |
+| Custom packages list — persistent across updates | ✅ |
+| App Manager tab with display names (via aapt) | ✅ |
+| Stats card — Targeted / Blocked / Installed counts | ✅ |
+| Target.txt editor — view and edit directly from WebUI | ✅ |
+| Backup & Restore — timestamped snapshots of target.txt | ✅ |
+| Custom Keybox — load keybox.xml from URL or file path | ✅ |
+| Deselect Unnecessary — remove apps that don't need Attestation | ✅ |
+| Security Patch spoofing | ✅ |
+| Clear all detection traces | ✅ |
+| Fix TEE | ✅ |
+| Reset system props by filter pattern | ✅ |
+| Quick Action — runs all root-hide steps at once | ✅ |
+| Boot diagnostics log (auto-saved on every boot) | ✅ |
+| Dark / Light theme | ✅ |
+| Configurable monitor refresh interval (10–3600s) | ✅ |
 
-```bash
-adb push auto_target.zip /sdcard/
-adb shell su -c "magisk --install-module /sdcard/auto_target.zip"
-adb reboot
+## WebUI
+
+Open the WebUI from your root manager's module page.
+
+### Main Tab
+
+- **Update Now** — immediately rebuilds target.txt from all installed apps
+- **Clear List** — empties target.txt
+- **View List** — shows current target.txt content in the terminal
+- **Start / Stop Monitor** — control the background monitor service
+- **Custom Packages** — add or remove a specific package manually
+- **Security Tools** — Security Patch, Clear Traces, Deselect Unnecessary, Fix TEE (optional)
+- **Reset Props** — filter and reset system props by grep pattern (optional)
+- **Quick Action** — runs all root-hide scripts + resets pixel props (optional)
+
+### Tools Tab
+
+- **Target.txt Editor** — load, edit, and save target.txt directly
+- **Backup & Restore** — create timestamped backups, restore or delete them by filename
+- **Custom Keybox** — paste a URL or file path to replace keybox.xml; backup and restore supported
+- **Boot Logs** — list, read, or delete diagnostic logs saved at boot time
+
+### Apps Tab *(enable from Settings)*
+
+Displays all installed user apps with their display names.
+Tap any app to toggle it in/out of target.txt.
+Blocked apps are saved permanently — the monitor will never re-add them.
+Use the **Refresh** button to reload the list manually.
+
+### Settings Panel
+
+| Setting | Default | Description |
+| :--- | :---: | :--- |
+| Dark Mode | off | Toggle light/dark theme |
+| Quick Action | off | Show Run All button |
+| Reset Props | off | Show Reset Props section |
+| Fix TEE | off | Show Fix TEE button |
+| Apps Tab | off | Show App Manager tab |
+| Monitor Interval | 60s | How often to check for package changes (10–3600s) |
+| Boot Log | on | Save diagnostics log on every boot |
+
+## How It Works
+
+1. At boot, `service.sh` waits 30 seconds then starts:
+   - `build_applist.sh` in the background — builds app display name cache using `aapt`
+   - `monitor.sh` in the background — watches for package changes at the configured interval
+   - `boot_logger.sh` — saves a diagnostic snapshot to `logs/`
+
+2. When a package change is detected, `update_target.sh` rebuilds target.txt:
+   - Always includes core Google packages (`com.android.vending`, `com.google.android.gms`, `com.google.android.gsf`)
+   - Skips any package in `cache/blocked_packages.list`
+   - Merges custom packages from `cache/custom_packages.list`
+
+3. The WebUI reads from cached files for instant load — no blocking shell calls on open.
+
+## File Structure
+
+```
+module/
+├── action.sh                         # Magisk action button → runs run_all.sh
+├── service.sh                        # Boot service
+├── post-fs-data.sh                   # Early boot (empty — nothing runs here)
+├── bin/
+│   ├── arm64-v8a/aapt
+│   └── armeabi-v7a/aapt
+├── scripts/
+│   ├── update_target.sh              # Rebuild target.txt
+│   ├── clear_target.sh               # Empty target.txt
+│   ├── view_target.sh                # Print target.txt
+│   ├── monitor.sh                    # Background package watcher
+│   ├── build_applist.sh              # Build app name cache at boot
+│   ├── get_applist.sh                # Fast read from cache for WebUI
+│   ├── toggle_blocked.sh             # Block / unblock a package
+│   ├── add_custom.sh                 # Add to custom list
+│   ├── remove_custom.sh              # Remove from custom list
+│   ├── list_custom.sh                # Show custom list
+│   ├── run_all.sh                    # Run all root-hide steps
+│   ├── auto_security_patch.sh        # Security patch spoofing
+│   ├── clear_all_detection_traces.sh # Wipe detector app data/cache
+│   ├── auto_fix_broken_tee.sh        # Fix TEE
+│   ├── view_props.sh                 # List props by filter
+│   ├── reset_props.sh                # Delete props by filter
+│   ├── deselect_unnecessary.sh       # Remove non-Attestation apps from target
+│   ├── target_editor.sh              # Read / write target.txt via WebUI
+│   ├── backup_target.sh              # Create / restore / list / delete backups
+│   ├── keybox_manager.sh             # Load / backup / restore keybox.xml
+│   ├── get_stats.sh                  # Return JSON stats for WebUI header
+│   ├── boot_logger.sh                # Save boot diagnostics log
+│   └── set_monitor_interval.sh       # Write monitor interval to config
+└── webroot/
+    ├── index.html
+    ├── scripts.js
+    └── styles.css
 ```
 
-### Method 3: KernelSU/APatch
+## Data Paths
 
-1. Open your root manager app
-2. Navigate to Modules
-3. Tap install and select the ZIP
+| Path | Description |
+| :--- | :--- |
+| `/data/adb/tricky_store/target.txt` | Main target file (TrickyStore reads this) |
+| `/data/adb/tricky_store/keybox.xml` | Keybox file |
+| `/data/adb/modules/auto_target/cache/packages.list` | Cached package list |
+| `/data/adb/modules/auto_target/cache/custom_packages.list` | Persistent custom packages |
+| `/data/adb/modules/auto_target/cache/blocked_packages.list` | Permanently blocked packages |
+| `/data/adb/modules/auto_target/cache/appnames.cache` | App display name cache |
+| `/data/adb/modules/auto_target/config/monitor_interval` | Monitor interval in seconds |
+| `/data/adb/modules/auto_target/config/boot_log_enabled` | Boot log flag (1/0) |
+| `/data/adb/modules/auto_target/backups/` | target.txt backups |
+| `/data/adb/modules/auto_target/logs/` | Boot diagnostic logs |
 
-# Usage
+## CLI Reference
 
-## Web UI
+```sh
+MODDIR=/data/adb/modules/auto_target
 
-Open your root manager's module page and tap "AutoTarget" to launch the web interface.
-
-Main Controls:
-- Update Now: Immediately refresh target list with all user apps
-- Clear List: Empty the target.txt file
-- View List: Display current target.txt contents
-
-Auto Monitor:
-- Start Monitor: Begin background monitoring service
-- Stop Monitor: Stop background monitoring
-
-Custom Packages:
-- Enter package name in input field (e.g., `com.example.app`)
-- Add Custom: Add to permanent custom list
-- Remove Custom: Remove from custom list
-- View Custom: Show all manually added packages
-
-Command Line
-
-```bash
-# Service control
-su -c "/data/adb/modules/auto_target/action.sh enable"   # Start monitor
-su -c "/data/adb/modules/auto_target/action.sh disable"  # Stop monitor
-
-# Manual operations
-su -c "sh /data/adb/modules/auto_target/scripts/update_target.sh"  # Update now
-su -c "sh /data/adb/modules/auto_target/scripts/view_target.sh"    # View list
-su -c "sh /data/adb/modules/auto_target/scripts/clear_target.sh"   # Clear list
+# Core
+su -c "sh $MODDIR/scripts/update_target.sh"
+su -c "sh $MODDIR/scripts/view_target.sh"
+su -c "sh $MODDIR/scripts/clear_target.sh"
 
 # Custom packages
-su -c "sh /data/adb/modules/auto_target/scripts/add_custom.sh com.example.app"
-su -c "sh /data/adb/modules/auto_target/scripts/remove_custom.sh com.example.app"
-su -c "sh /data/adb/modules/auto_target/scripts/list_custom.sh"
+su -c "sh $MODDIR/scripts/add_custom.sh com.example.app"
+su -c "sh $MODDIR/scripts/remove_custom.sh com.example.app"
+su -c "sh $MODDIR/scripts/list_custom.sh"
+
+# Block / unblock
+su -c "sh $MODDIR/scripts/toggle_blocked.sh com.example.app 1"   # block
+su -c "sh $MODDIR/scripts/toggle_blocked.sh com.example.app 0"   # unblock
+
+# Security
+su -c "sh $MODDIR/scripts/run_all.sh"
+su -c "sh $MODDIR/scripts/auto_security_patch.sh"
+su -c "sh $MODDIR/scripts/clear_all_detection_traces.sh"
+su -c "sh $MODDIR/scripts/reset_props.sh 'pixel|pihook'"
+
+# Backup & restore
+su -c "sh $MODDIR/scripts/backup_target.sh create"
+su -c "sh $MODDIR/scripts/backup_target.sh list"
+su -c "sh $MODDIR/scripts/backup_target.sh restore target_20260101_120000.txt"
+
+# Keybox
+su -c "sh $MODDIR/scripts/keybox_manager.sh url https://example.com/keybox.xml"
+su -c "sh $MODDIR/scripts/keybox_manager.sh file /sdcard/keybox.xml"
+su -c "sh $MODDIR/scripts/keybox_manager.sh backup"
+su -c "sh $MODDIR/scripts/keybox_manager.sh restore"
+
+# Monitor interval
+su -c "sh $MODDIR/scripts/set_monitor_interval.sh 120"
 ```
 
-File Structure
+## Building
 
-```
-auto_target/
-├── META-INF/
-│   └── com/google/android/
-│       ├── update-binary
-│       └── updater-script
-├── action.sh                 # Monitor service control
-├── common/
-│   └── service.sh           # Boot service starter
-├── module.prop              # Module metadata
-├── scripts/
-│   ├── add_custom.sh        # Add custom package
-│   ├── clear_target.sh      # Clear target list
-│   ├── list_custom.sh       # List custom packages
-│   ├── monitor.sh          # Background monitoring
-│   ├── remove_custom.sh    # Remove custom package
-│   ├── update_target.sh    # Core update logic
-│   └── view_target.sh      # View target list
-├── uninstall.sh             # Cleanup script
-└── webroot/
-    ├── index.html          # Web UI
-    ├── scripts.js          # Frontend logic
-    └── styles.css          # Styling
+No build step required. The GitHub Actions workflow packages `module/` into a ZIP on every push to `main` and creates a GitHub Release automatically when `version` in `module.prop` changes.
+
+```sh
+cd module
+zip -r ../Auto_Target-v3.6.zip . -x "*.DS_Store" -x "__MACOSX/*"
 ```
 
-Configuration
+## License
 
-The module stores data in:
+GPL-3.0 — see [LICENSE](LICENSE)
 
-- Main target: `/data/adb/tricky_store/target.txt`
-- Package cache: `/data/adb/modules/auto_target/cache/packages.list`
-- Custom list: `/data/adb/modules/auto_target/cache/custom_packages.list`
+## Credits
 
-Always Included Packages
-
-- `com.android.vending` (Play Store)
-- `com.google.android.gms` (Google Play Services)
-- `com.google.android.gsf` (Google Services Framework)
-
-Troubleshooting
-
-Issue: Web UI not loading
-
-Solution: Ensure your root manager supports web UI (Magisk 25.2+, KernelSU Manager, APatch)
-
-Issue: Monitor not starting
-
-Check status:
-
-```bash
-su -c "ps -ef | grep monitor.sh"
-```
-
-Manual start:
-
-```bash
-su -c "/data/adb/modules/auto_target/action.sh enable"
-```
-
-## Issue: Permission denied errors
-
-Fix:
-
-```bash
-su -c "chmod -R 755 /data/adb/modules/auto_target/scripts"
-su -c "chmod 755 /data/adb/modules/auto_target/action.sh"
-```
-
-Issue: Target file not updating
-
-Verify:
-
-```bash
-su -c "ls -l /data/adb/tricky_store/target.txt"
-su -c "cat /data/adb/tricky_store/target.txt"
-```
-
-## Building from Source
-
-```bash
-# Ensure correct structure
-cd auto_target
-
-# Create ZIP
-zip -r9 auto_target.zip . -x "*.git*" "*.DS_Store" "*.zip"
-
-# Or use recursive zip
-zip -r9 ../auto_target.zip ../auto_target -x "*.git*" "*.DS_Store" "*.zip"
-```
-
-# License
-
-MIT License - free to modify and distribute
-
-# Credits
-
-- DevCat3
-- Shell Compatibility: Magisk/KernelSU/APatch APIs
-- Font: Mona Sans monospace
+- **DevCat3** — author
+- [KOWX712/Tricky-Addon-Update-Target-List](https://github.com/KOWX712/Tricky-Addon-Update-Target-List) — `aapt` binaries and WebUI inspiration
+- [5ec1cff/TrickyStore](https://github.com/5ec1cff/TrickyStore) — the root of everything
+- Font: Mona Sans (monospace)
 
 ## Support
 
-For issues and feature requests, open an issue on GitHub.
-or contact me on telegram @CatDev3
+Telegram: [@DevCatowa](https://t.me/DevCatowa)

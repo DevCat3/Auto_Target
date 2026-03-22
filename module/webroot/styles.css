@@ -733,25 +733,8 @@ input:checked + .slider::before    { transform: translateX(22px); }
 }
 
 .apps-refresh-btn {
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-  border: 1.5px solid var(--border);
-  background: transparent;
-  color: var(--fg-muted);
-  font-size: 1.1rem;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: color .2s, border-color .2s, transform .35s;
-  flex-shrink: 0;
-  outline: none;
-  user-select: none;
-  -webkit-user-select: none;
+  min-width: 100px !important;
 }
-.apps-refresh-btn:hover  { color: var(--accent); border-color: var(--accent); }
-.apps-refresh-btn:active { transform: rotate(180deg); }
 
 .filter-btns {
   display: flex;
@@ -897,3 +880,63 @@ input:checked + .slider::before    { transform: translateX(22px); }
   flex-shrink: 0;
 }
 @keyframes spin { to { transform: rotate(360deg); } }
+
+/* ─── Stats Card ─────────────────────────────────────────────────────────────── */
+.stats-card {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  padding: .9rem 1rem;
+  margin-top: -.25rem;
+}
+.stat-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .2rem;
+}
+.stat-val {
+  font-size: 1.45rem;
+  font-weight: 800;
+  color: var(--accent);
+  line-height: 1;
+}
+.stat-lbl {
+  font-size: .72rem;
+  font-weight: 600;
+  color: var(--fg-muted);
+  letter-spacing: .5px;
+  text-transform: uppercase;
+}
+.stat-divider {
+  width: 1px;
+  height: 36px;
+  background: var(--border);
+  flex-shrink: 0;
+  margin: 0 .5rem;
+}
+
+/* ─── Target Editor ──────────────────────────────────────────────────────────── */
+.target-textarea {
+  width: 100%;
+  min-height: 220px;
+  padding: .75rem 1rem;
+  font-size: .82rem;
+  font-family: 'Mona', monospace;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg2);
+  color: var(--fg);
+  outline: none;
+  resize: vertical;
+  line-height: 1.6;
+  transition: border-color .2s;
+  box-sizing: border-box;
+}
+.target-textarea:focus { border-color: var(--accent); }

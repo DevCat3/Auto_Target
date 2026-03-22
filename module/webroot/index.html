@@ -28,7 +28,6 @@
   </div>
 
   <div class="settings-divider"></div>
-
   <div class="settings-section-label">Visibility</div>
 
   <div class="settings-row">
@@ -60,7 +59,6 @@
   </div>
 
   <div class="settings-divider"></div>
-
   <div class="settings-section-label">Monitor</div>
 
   <div class="settings-block">
@@ -71,6 +69,16 @@
              min="10" max="3600" placeholder="60" />
       <button id="interval-save-btn" class="btn primary interval-btn">Save</button>
     </div>
+  </div>
+
+  <div class="settings-divider"></div>
+  <div class="settings-section-label">Logging</div>
+
+  <div class="settings-row">
+    <div><label>Boot Log</label><br><span>Save diagnostics on every boot</span></div>
+    <label class="theme-switch">
+      <input type="checkbox" id="bootlog-toggle" checked /><span class="slider"></span>
+    </label>
   </div>
 </div>
 
@@ -87,9 +95,28 @@
   </div>
   <p class="subtitle">Auto-add apps to TrickyStore target.txt</p>
 
+  <!-- Stats Card -->
+  <div class="stats-card">
+    <div class="stat-item">
+      <span class="stat-val" id="stat-targeted">–</span>
+      <span class="stat-lbl">Targeted</span>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat-item">
+      <span class="stat-val" id="stat-blocked">–</span>
+      <span class="stat-lbl">Blocked</span>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat-item">
+      <span class="stat-val" id="stat-total">–</span>
+      <span class="stat-lbl">Installed</span>
+    </div>
+  </div>
+
   <!-- Tab Bar -->
   <div class="tab-bar">
     <button class="tab-btn active" data-tab="main">Main</button>
+    <button class="tab-btn" data-tab="tools">Tools</button>
     <button class="tab-btn" data-tab="apps" id="apps-tab-btn" style="display:none">Apps</button>
   </div>
 
@@ -128,9 +155,9 @@
     <div class="card">
       <div class="section-title">Security Tools</div>
       <div class="button-row">
-        <button id="security-patch-btn" class="btn primary">Security Patch</button>
-        <button id="boot-hash-btn"      class="btn success">Boot Hash</button>
-        <button id="clear-traces-btn"   class="btn danger">Clear Traces</button>
+        <button id="security-patch-btn"      class="btn primary">Security Patch</button>
+        <button id="clear-traces-btn"        class="btn danger">Clear Traces</button>
+        <button id="deselect-unnecessary-btn" class="btn fourth">Deselect Unnecessary</button>
         <span id="tee-btn-wrap" style="display:none">
           <button id="fix-tee-btn" class="btn fourth">Fix TEE</button>
         </span>
@@ -171,6 +198,87 @@
 
   </div><!-- /tab-main -->
 
+<!-- ══ TAB: TOOLS ═════════════════════════════════════ -->
+  <div id="tab-tools" class="tab-content">
+
+    <!-- Target Editor -->
+    <div class="card">
+      <div class="section-title">Target.txt Editor</div>
+      <p class="action-desc">Edit target.txt directly. One package per line.</p>
+      <textarea id="target-editor" class="target-textarea" placeholder="Press Load to read current content..."></textarea>
+      <div class="button-row" style="margin-top:.75rem">
+        <button id="editor-load-btn"  class="btn primary">Load</button>
+        <button id="editor-save-btn"  class="btn success">Save</button>
+      </div>
+    </div>
+
+    <!-- Backup & Restore -->
+    <div class="card">
+      <div class="section-title">Backup & Restore</div>
+      <div class="button-row">
+        <button id="backup-create-btn" class="btn success">Create Backup</button>
+        <button id="backup-list-btn"   class="btn primary">List Backups</button>
+      </div>
+      <div class="input-group" style="margin-top:.85rem">
+        <input type="text" id="backup-filename-input" class="input-field"
+               placeholder="Paste filename from list above to restore or delete" />
+      </div>
+      <div class="button-row">
+        <button id="backup-restore-btn" class="btn fourth">Restore</button>
+        <button id="backup-delete-btn"  class="btn danger">Delete</button>
+      </div>
+    </div>
+
+    <!-- Custom Keybox -->
+    <div class="card">
+      <div class="section-title">Custom Keybox</div>
+      <p class="action-desc">Paste a URL or local file path to load a keybox.xml.</p>
+      <div class="input-group">
+        <input type="text" id="keybox-input" class="input-field"
+               placeholder="https://… or /sdcard/keybox.xml" />
+      </div>
+      <div class="button-row">
+        <button id="keybox-url-btn"     class="btn primary">Load URL</button>
+        <button id="keybox-file-btn"    class="btn success">Load File</button>
+        <button id="keybox-backup-btn"  class="btn fourth">Backup</button>
+        <button id="keybox-restore-btn" class="btn danger">Restore</button>
+      </div>
+    </div>
+
+    <!-- Boot Logs -->
+    <div class="card">
+      <div class="section-title">Boot Logs</div>
+      <div class="button-row">
+        <button id="logs-list-btn"   class="btn primary">List Logs</button>
+        <button id="logs-view-btn"   class="btn success">View Latest</button>
+      </div>
+      <div class="input-group" style="margin-top:.85rem">
+        <input type="text" id="log-filename-input" class="input-field"
+               placeholder="Paste filename from list above to read or delete" />
+      </div>
+      <div class="button-row">
+        <button id="logs-read-btn"   class="btn primary">Read</button>
+        <button id="logs-delete-btn" class="btn danger">Delete</button>
+      </div>
+    </div>
+
+    <!-- Tools Terminal -->
+    <div class="card terminal">
+      <div class="terminal-header">
+        <div class="dots">
+          <span class="dot red"></span>
+          <span class="dot yellow"></span>
+          <span class="dot green"></span>
+        </div>
+        <span class="term-title">Output</span>
+        <button id="clear-tools-output" class="clear-btn">Clear</button>
+      </div>
+      <div class="terminal-body" id="tools-output-log"></div>
+    </div>
+
+  </div><!-- /tab-tools -->
+
+
   <!-- ══ TAB: APPS ═══════════════════════════════════════ -->
   <div id="tab-apps" class="tab-content">
 
@@ -187,23 +295,18 @@
             <button class="filter-btn" data-filter="on">Targeted</button>
             <button class="filter-btn" data-filter="off">Blocked</button>
           </div>
-          <button id="apps-refresh-btn" class="apps-refresh-btn" title="Reload app list">↻</button>
+          <button id="apps-refresh-btn" class="btn success apps-refresh-btn">Refresh</button>
         </div>
       </div>
     </div>
 
     <div class="card apps-card" id="apps-card">
-      <!-- Loading state -->
       <div id="apps-loading" class="apps-loading">
         <div class="spinner"></div>
         <span>Loading app list...</span>
       </div>
-      <!-- App list -->
       <div id="apps-list" class="apps-list" style="display:none"></div>
-      <!-- Empty state -->
-      <div id="apps-empty" class="apps-empty" style="display:none">
-        No apps match your search
-      </div>
+      <div id="apps-empty" class="apps-empty" style="display:none">No apps match your search</div>
     </div>
 
   </div><!-- /tab-apps -->
