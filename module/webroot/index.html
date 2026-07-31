@@ -1,14 +1,52 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>AutoTarget</title>
-  <link rel="stylesheet" href="styles.css" />
-  <script type="module" src="scripts.js"></script>
+  <link rel="stylesheet" href="./styles.css" type="text/css" />
+  <script type="module" src="./scripts.js"></script>
 </head>
-<body>
+
+<body class="body-content">
 <div id="toast" class="toast"></div>
+
+<header class="app-header">
+  <div class="header-inner">
+    <div class="title">
+      <div class="group">
+        <span id="module-name">AutoTarget</span>
+      </div>
+      <span class="item-version" id="module-subtitle">TrickyStore target.txt automation</span>
+    </div>
+    <button id="settings-btn" class="icon-btn" title="Settings">⚙</button>
+  </div>
+
+  <div class="card-group stats-card">
+    <div class="card-row stat-row">
+      <div class="stat-item">
+        <span class="stat-val" id="stat-targeted">–</span>
+        <span class="stat-lbl">Targeted</span>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-item">
+        <span class="stat-val" id="stat-blocked">–</span>
+        <span class="stat-lbl">Blocked</span>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-item">
+        <span class="stat-val" id="stat-total">–</span>
+        <span class="stat-lbl">Installed</span>
+      </div>
+    </div>
+  </div>
+</header>
+
+<nav class="tab-bar" id="tab-bar">
+  <button class="tab-btn active" data-tab="main">Main</button>
+  <button class="tab-btn" data-tab="tools">Tools</button>
+  <button class="tab-btn" data-tab="apps" id="apps-tab-btn" style="display:none">Apps</button>
+</nav>
 
 <!-- Settings Overlay -->
 <div id="settings-overlay" class="settings-overlay"></div>
@@ -16,145 +54,132 @@
 <!-- Settings Panel -->
 <div id="settings-panel" class="settings-panel">
   <div class="settings-header">
-    <h2>⚙ Settings</h2>
-    <button id="settings-close" class="settings-close">✕</button>
+    <span class="section-label">Settings</span>
+    <button id="settings-close" class="icon-btn">✕</button>
   </div>
 
-  <div class="settings-row">
-    <div><label>Dark Mode</label><br><span>Light / dark theme</span></div>
-    <label class="theme-switch">
-      <input type="checkbox" id="theme-toggle" /><span class="slider"></span>
-    </label>
-  </div>
-
-  <div class="settings-divider"></div>
-  <div class="settings-section-label">Visibility</div>
-
-  <div class="settings-row">
-    <div><label>Quick Action</label><br><span>Show Run All button</span></div>
-    <label class="theme-switch">
-      <input type="checkbox" id="action-toggle" /><span class="slider"></span>
-    </label>
-  </div>
-
-  <div class="settings-row">
-    <div><label>Reset Props</label><br><span>Show props section</span></div>
-    <label class="theme-switch">
-      <input type="checkbox" id="props-toggle" /><span class="slider"></span>
-    </label>
-  </div>
-
-  <div class="settings-row">
-    <div><label>Fix TEE</label><br><span>Show Fix TEE button</span></div>
-    <label class="theme-switch">
-      <input type="checkbox" id="tee-toggle" /><span class="slider"></span>
-    </label>
-  </div>
-
-  <div class="settings-row">
-    <div><label>Apps Tab</label><br><span>Show app manager tab</span></div>
-    <label class="theme-switch">
-      <input type="checkbox" id="apps-toggle" /><span class="slider"></span>
-    </label>
-  </div>
-
-  <div class="settings-divider"></div>
-  <div class="settings-section-label">Monitor</div>
-
-  <div class="settings-block">
-    <label class="settings-label">Refresh Interval</label>
-    <span class="settings-hint">How often monitor checks for new apps (10–3600s)</span>
-    <div class="settings-interval-row">
-      <input type="number" id="interval-input" class="input-field interval-input"
-             min="10" max="3600" placeholder="60" />
-      <button id="interval-save-btn" class="btn primary interval-btn">Save</button>
+  <p class="settings-caption">General</p>
+  <div class="card-group">
+    <div class="settings-row card-row">
+      <div class="card-row__body">
+        <span class="card-row__title">Dark Mode</span>
+        <span class="card-row__sub">Light / dark theme</span>
+      </div>
+      <label class="theme-switch">
+        <input type="checkbox" id="theme-toggle" /><span class="slider"></span>
+      </label>
     </div>
   </div>
 
-  <div class="settings-divider"></div>
-  <div class="settings-section-label">Logging</div>
+  <p class="settings-caption">Visibility</p>
+  <div class="card-group">
+    <div class="settings-row card-row">
+      <div class="card-row__body">
+        <span class="card-row__title">Quick Action</span>
+        <span class="card-row__sub">Show Run All button</span>
+      </div>
+      <label class="theme-switch">
+        <input type="checkbox" id="action-toggle" /><span class="slider"></span>
+      </label>
+    </div>
 
-  <div class="settings-row">
-    <div><label>Boot Log</label><br><span>Save diagnostics on every boot</span></div>
-    <label class="theme-switch">
-      <input type="checkbox" id="bootlog-toggle" checked /><span class="slider"></span>
-    </label>
+    <div class="settings-row card-row">
+      <div class="card-row__body">
+        <span class="card-row__title">Reset Props</span>
+        <span class="card-row__sub">Show props section</span>
+      </div>
+      <label class="theme-switch">
+        <input type="checkbox" id="props-toggle" /><span class="slider"></span>
+      </label>
+    </div>
+
+    <div class="settings-row card-row">
+      <div class="card-row__body">
+        <span class="card-row__title">Fix TEE</span>
+        <span class="card-row__sub">Show Fix TEE button</span>
+      </div>
+      <label class="theme-switch">
+        <input type="checkbox" id="tee-toggle" /><span class="slider"></span>
+      </label>
+    </div>
+
+    <div class="settings-row card-row">
+      <div class="card-row__body">
+        <span class="card-row__title">Apps Tab</span>
+        <span class="card-row__sub">Show app manager tab</span>
+      </div>
+      <label class="theme-switch">
+        <input type="checkbox" id="apps-toggle" /><span class="slider"></span>
+      </label>
+    </div>
+  </div>
+
+  <p class="settings-caption">Monitor</p>
+  <div class="card-group">
+    <div class="settings-row card-row settings-block">
+      <div class="card-row__body">
+        <span class="card-row__title">Refresh Interval</span>
+        <span class="card-row__sub">How often monitor checks for new apps (10–3600s)</span>
+        <div class="settings-interval-row">
+          <input type="number" id="interval-input" class="input-field interval-input"
+                 min="10" max="3600" placeholder="60" />
+          <button id="interval-save-btn" class="btn primary interval-btn">Save</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <p class="settings-caption">Logging</p>
+  <div class="card-group">
+    <div class="settings-row card-row">
+      <div class="card-row__body">
+        <span class="card-row__title">Boot Log</span>
+        <span class="card-row__sub">Save diagnostics on every boot</span>
+      </div>
+      <label class="theme-switch">
+        <input type="checkbox" id="bootlog-toggle" checked /><span class="slider"></span>
+      </label>
+    </div>
   </div>
 </div>
 
-<main class="container">
-
-  <!-- Top Bar -->
-  <div class="top-bar">
-    <button id="settings-btn" class="settings-btn" title="Settings">⚙</button>
-  </div>
-
-  <!-- Header -->
-  <div class="title-bar">
-    <h1 id="module-name" class="title">AutoTarget</h1>
-  </div>
-  <p class="subtitle">Auto-add apps to TrickyStore target.txt</p>
-
-  <!-- Stats Card -->
-  <div class="stats-card">
-    <div class="stat-item">
-      <span class="stat-val" id="stat-targeted">–</span>
-      <span class="stat-lbl">Targeted</span>
-    </div>
-    <div class="stat-divider"></div>
-    <div class="stat-item">
-      <span class="stat-val" id="stat-blocked">–</span>
-      <span class="stat-lbl">Blocked</span>
-    </div>
-    <div class="stat-divider"></div>
-    <div class="stat-item">
-      <span class="stat-val" id="stat-total">–</span>
-      <span class="stat-lbl">Installed</span>
-    </div>
-  </div>
-
-  <!-- Tab Bar -->
-  <div class="tab-bar">
-    <button class="tab-btn active" data-tab="main">Main</button>
-    <button class="tab-btn" data-tab="tools">Tools</button>
-    <button class="tab-btn" data-tab="apps" id="apps-tab-btn" style="display:none">Apps</button>
-  </div>
+<main class="body-content">
 
   <!-- ══ TAB: MAIN ══════════════════════════════════════ -->
   <div id="tab-main" class="tab-content active">
 
-    <div class="card">
-      <div class="section-title">Main Controls</div>
-      <div class="button-row">
+    <p class="section-label">Main Controls</p>
+    <div class="card-group">
+      <div class="card-row btn-row-card">
         <button id="update-btn" class="btn primary">Update Now</button>
         <button id="clear-btn"  class="btn danger">Clear List</button>
         <button id="view-btn"   class="btn success">View List</button>
       </div>
     </div>
 
-    <div class="card">
-      <div class="section-title">Auto Monitor</div>
-      <div class="button-row">
+    <p class="section-label">Auto Monitor</p>
+    <div class="card-group">
+      <div class="card-row btn-row-card">
         <button id="start-monitor-btn" class="btn primary">Start Monitor</button>
         <button id="stop-monitor-btn"  class="btn danger">Stop Monitor</button>
       </div>
     </div>
 
-    <div class="card">
-      <div class="section-title">Custom Packages</div>
-      <div class="input-group">
+    <p class="section-label">Custom Packages</p>
+    <div class="card-group">
+      <div class="card-row field-stack">
         <input type="text" id="custom-package-input" class="input-field" placeholder="com.example.app" />
-      </div>
-      <div class="button-row">
-        <button id="add-custom-btn"    class="btn success">Add</button>
-        <button id="remove-custom-btn" class="btn danger">Remove</button>
-        <button id="view-custom-btn"   class="btn primary">View Custom</button>
+        <div class="btn-row">
+          <button id="add-custom-btn"    class="btn success">Add</button>
+          <button id="remove-custom-btn" class="btn danger">Remove</button>
+          <button id="view-custom-btn"   class="btn primary">View Custom</button>
+        </div>
       </div>
     </div>
 
-    <div class="card">
-      <div class="section-title">Security Tools</div>
-      <div class="button-row">
+    <p class="section-label">Security Tools</p>
+    <div class="card-group">
+      <div class="card-row btn-row-card">
         <button id="security-patch-btn"      class="btn primary">Security Patch</button>
         <button id="clear-traces-btn"        class="btn danger">Clear Traces</button>
         <button id="deselect-unnecessary-btn" class="btn fourth">Deselect Unnecessary</button>
@@ -164,36 +189,43 @@
       </div>
     </div>
 
-    <div class="card" id="props-card" style="display:none">
-      <div class="section-title">Reset Props</div>
-      <div class="input-group">
-        <input type="text" id="props-filter-input" class="input-field" placeholder="e.g. pihook|pixelprops" />
-      </div>
-      <div class="button-row">
-        <button id="view-props-btn"  class="btn primary">View Props</button>
-        <button id="reset-props-btn" class="btn danger">Reset Props</button>
-      </div>
-    </div>
-
-    <div class="card action-card" id="action-card" style="display:none">
-      <div class="section-title">Quick Action</div>
-      <p class="action-desc">Runs all root-hiding scripts + resets pixel props</p>
-      <div class="button-row">
-        <button id="action-btn" class="btn action-btn-el">Run All</button>
+    <div id="props-card" style="display:none">
+      <p class="section-label">Reset Props</p>
+      <div class="card-group">
+        <div class="card-row field-stack">
+          <input type="text" id="props-filter-input" class="input-field" placeholder="e.g. pihook|pixelprops" />
+          <div class="btn-row">
+            <button id="view-props-btn"  class="btn primary">View Props</button>
+            <button id="reset-props-btn" class="btn danger">Reset Props</button>
+          </div>
+        </div>
       </div>
     </div>
 
-    <div class="card terminal">
+    <div id="action-card" class="action-card" style="display:none">
+      <p class="section-label">Quick Action</p>
+      <div class="card-group">
+        <div class="card-row field-stack">
+          <span class="card-row__sub">Runs all root-hiding scripts + resets pixel props</span>
+          <div class="btn-row">
+            <button id="action-btn" class="btn action-btn-el">Run All</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <p class="section-label">Terminal Output</p>
+    <div class="card-group terminal">
       <div class="terminal-header">
         <div class="dots">
           <span class="dot red"></span>
           <span class="dot yellow"></span>
           <span class="dot green"></span>
         </div>
-        <span class="term-title">Terminal Output</span>
+        <span class="term-title">Output</span>
         <button id="clear-output" class="clear-btn">Clear</button>
       </div>
-      <div class="terminal-body" id="output-log"></div>
+      <div class="terminal-body mono-block" id="output-log"></div>
     </div>
 
   </div><!-- /tab-main -->
@@ -202,68 +234,71 @@
   <div id="tab-tools" class="tab-content">
 
     <!-- Target Editor -->
-    <div class="card">
-      <div class="section-title">Target.txt Editor</div>
-      <p class="action-desc">Edit target.txt directly. One package per line.</p>
-      <textarea id="target-editor" class="target-textarea" placeholder="Press Load to read current content..."></textarea>
-      <div class="button-row" style="margin-top:.75rem">
-        <button id="editor-load-btn"  class="btn primary">Load</button>
-        <button id="editor-save-btn"  class="btn success">Save</button>
+    <p class="section-label">Target.txt Editor</p>
+    <div class="card-group">
+      <div class="card-row field-stack">
+        <span class="card-row__sub">Edit target.txt directly. One package per line.</span>
+        <textarea id="target-editor" class="target-textarea" placeholder="Press Load to read current content..."></textarea>
+        <div class="btn-row">
+          <button id="editor-load-btn"  class="btn primary">Load</button>
+          <button id="editor-save-btn"  class="btn success">Save</button>
+        </div>
       </div>
     </div>
 
     <!-- Backup & Restore -->
-    <div class="card">
-      <div class="section-title">Backup & Restore</div>
-      <div class="button-row">
-        <button id="backup-create-btn" class="btn success">Create Backup</button>
-        <button id="backup-list-btn"   class="btn primary">List Backups</button>
-      </div>
-      <div class="input-group" style="margin-top:.85rem">
+    <p class="section-label">Backup & Restore</p>
+    <div class="card-group">
+      <div class="card-row field-stack">
+        <div class="btn-row">
+          <button id="backup-create-btn" class="btn success">Create Backup</button>
+          <button id="backup-list-btn"   class="btn primary">List Backups</button>
+        </div>
         <input type="text" id="backup-filename-input" class="input-field"
                placeholder="Paste filename from list above to restore or delete" />
-      </div>
-      <div class="button-row">
-        <button id="backup-restore-btn" class="btn fourth">Restore</button>
-        <button id="backup-delete-btn"  class="btn danger">Delete</button>
+        <div class="btn-row">
+          <button id="backup-restore-btn" class="btn fourth">Restore</button>
+          <button id="backup-delete-btn"  class="btn danger">Delete</button>
+        </div>
       </div>
     </div>
 
     <!-- Custom Keybox -->
-    <div class="card">
-      <div class="section-title">Custom Keybox</div>
-      <p class="action-desc">Paste a URL or local file path to load a keybox.xml.</p>
-      <div class="input-group">
+    <p class="section-label">Custom Keybox</p>
+    <div class="card-group">
+      <div class="card-row field-stack">
+        <span class="card-row__sub">Paste a URL or local file path to load a keybox.xml.</span>
         <input type="text" id="keybox-input" class="input-field"
                placeholder="https://… or /sdcard/keybox.xml" />
-      </div>
-      <div class="button-row">
-        <button id="keybox-url-btn"     class="btn primary">Load URL</button>
-        <button id="keybox-file-btn"    class="btn success">Load File</button>
-        <button id="keybox-backup-btn"  class="btn fourth">Backup</button>
-        <button id="keybox-restore-btn" class="btn danger">Restore</button>
+        <div class="btn-row">
+          <button id="keybox-url-btn"     class="btn primary">Load URL</button>
+          <button id="keybox-file-btn"    class="btn success">Load File</button>
+          <button id="keybox-backup-btn"  class="btn fourth">Backup</button>
+          <button id="keybox-restore-btn" class="btn danger">Restore</button>
+        </div>
       </div>
     </div>
 
     <!-- Boot Logs -->
-    <div class="card">
-      <div class="section-title">Boot Logs</div>
-      <div class="button-row">
-        <button id="logs-list-btn"   class="btn primary">List Logs</button>
-        <button id="logs-view-btn"   class="btn success">View Latest</button>
-      </div>
-      <div class="input-group" style="margin-top:.85rem">
+    <p class="section-label">Boot Logs</p>
+    <div class="card-group">
+      <div class="card-row field-stack">
+        <div class="btn-row">
+          <button id="logs-list-btn"   class="btn primary">List Logs</button>
+          <button id="logs-view-btn"   class="btn success">View Latest</button>
+        </div>
         <input type="text" id="log-filename-input" class="input-field"
                placeholder="Paste filename from list above to read or delete" />
-      </div>
-      <div class="button-row">
-        <button id="logs-read-btn"   class="btn primary">Read</button>
-        <button id="logs-delete-btn" class="btn danger">Delete</button>
+        <div class="btn-row">
+          <button id="logs-read-btn"   class="btn primary">Read</button>
+          <button id="logs-delete-btn" class="btn danger">Delete</button>
+        </div>
       </div>
     </div>
 
     <!-- Tools Terminal -->
-    <div class="card terminal">
+    <p class="section-label">Output</p>
+    <div class="card-group terminal">
       <div class="terminal-header">
         <div class="dots">
           <span class="dot red"></span>
@@ -273,7 +308,7 @@
         <span class="term-title">Output</span>
         <button id="clear-tools-output" class="clear-btn">Clear</button>
       </div>
-      <div class="terminal-body" id="tools-output-log"></div>
+      <div class="terminal-body mono-block" id="tools-output-log"></div>
     </div>
 
   </div><!-- /tab-tools -->
@@ -282,12 +317,12 @@
   <!-- ══ TAB: APPS ═══════════════════════════════════════ -->
   <div id="tab-apps" class="tab-content">
 
-    <div class="card">
-      <div class="section-title">App Manager</div>
-      <p class="action-desc">
-        Uncheck apps to block them from target.txt — the monitor won't re-add them.
-      </p>
-      <div class="apps-toolbar">
+    <p class="section-label">App Manager</p>
+    <div class="card-group">
+      <div class="card-row field-stack">
+        <span class="card-row__sub">
+          Uncheck apps to block them from target.txt — the monitor won't re-add them.
+        </span>
         <input type="text" id="app-search" class="input-field" placeholder="Search package..." />
         <div class="apps-toolbar-row">
           <div class="filter-btns">
@@ -300,7 +335,7 @@
       </div>
     </div>
 
-    <div class="card apps-card" id="apps-card">
+    <div class="card-group apps-card" id="apps-card">
       <div id="apps-loading" class="apps-loading">
         <div class="spinner"></div>
         <span>Loading app list...</span>
